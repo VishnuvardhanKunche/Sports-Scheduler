@@ -1,16 +1,16 @@
 const request = require('supertest');
 const app = require('../app');
-const { sequelize } = require('../models');
+const { sequelize, User } = require('../models');
+
+beforeAll(async () => {
+  await sequelize.sync({ force: true });
+});
+
+afterAll(async () => {
+  await sequelize.close();
+});
 
 describe('Sports Scheduler App', () => {
-  beforeAll(async () => {
-    await sequelize.sync({ force: true });
-  });
-
-  afterAll(async () => {
-    await sequelize.close();
-  });
-
   describe('GET /', () => {
     it('should return the homepage', async () => {
       const response = await request(app).get('/');
@@ -45,8 +45,6 @@ describe('Sports Scheduler App', () => {
 });
 
 describe('User Model', () => {
-  const { User } = require('../models');
-
   beforeEach(async () => {
     await User.destroy({ where: {} });
   });
@@ -57,22 +55,22 @@ describe('User Model', () => {
         name: 'Test User',
         email: 'test@example.com',
         password: 'password123',
-        role: 'player'
+        role: 'player',
       };
 
       const user = await User.createUser(userData);
-      
+
       expect(user.name).toBe(userData.name);
       expect(user.email).toBe(userData.email);
       expect(user.role).toBe(userData.role);
-      expect(user.password).not.toBe(userData.password); // Should be hashed
+      expect(user.password).not.toBe(userData.password);
     });
 
     it('should default to player role', async () => {
       const userData = {
         name: 'Test Player',
         email: 'player@example.com',
-        password: 'password123'
+        password: 'password123',
       };
 
       const user = await User.createUser(userData);
@@ -82,30 +80,24 @@ describe('User Model', () => {
 
   describe('checkPassword', () => {
     it('should validate correct password', async () => {
-      const userData = {
+      const user = await User.createUser({
         name: 'Test User',
         email: 'test@example.com',
         password: 'password123',
-        role: 'player'
-      };
+      });
 
-      const user = await User.createUser(userData);
       const isValid = await user.checkPassword('password123');
-      
       expect(isValid).toBe(true);
     });
 
     it('should reject incorrect password', async () => {
-      const userData = {
+      const user = await User.createUser({
         name: 'Test User',
         email: 'test@example.com',
         password: 'password123',
-        role: 'player'
-      };
+      });
 
-      const user = await User.createUser(userData);
       const isValid = await user.checkPassword('wrongpassword');
-      
       expect(isValid).toBe(false);
     });
   });
@@ -116,7 +108,7 @@ describe('User Model', () => {
         name: 'Admin User',
         email: 'admin@example.com',
         password: 'password123',
-        role: 'admin'
+        role: 'admin',
       });
 
       expect(adminUser.isAdmin()).toBe(true);
@@ -128,7 +120,7 @@ describe('User Model', () => {
         name: 'Player User',
         email: 'player@example.com',
         password: 'password123',
-        role: 'player'
+        role: 'player',
       });
 
       expect(playerUser.isAdmin()).toBe(false);
