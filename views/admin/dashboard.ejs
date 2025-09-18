@@ -1,0 +1,228 @@
+<%- include('../partials/header') %>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="fas fa-user-shield me-2"></i>
+        Admin Dashboard
+    </h1>
+    <div>
+        <a href="/admin/sports/new" class="btn btn-primary me-2">
+            <i class="fas fa-plus me-2"></i>
+            Create Sport
+        </a>
+        <a href="/sessions/new" class="btn btn-success">
+            <i class="fas fa-calendar-plus me-2"></i>
+            Create Session
+        </a>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+                <i class="fas fa-futbol fa-2x mb-2"></i>
+                <h3><%= stats.totalSports %></h3>
+                <p class="mb-0">Sports Created</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <i class="fas fa-users fa-2x mb-2"></i>
+                <h3><%= stats.totalPlayers %></h3>
+                <p class="mb-0">Total Players</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body text-center">
+                <i class="fas fa-calendar fa-2x mb-2"></i>
+                <h3><%= stats.totalSessions %></h3>
+                <p class="mb-0">Total Sessions</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body text-center">
+                <i class="fas fa-chart-bar fa-2x mb-2"></i>
+                <h3><%= upcomingSessions.length %></h3>
+                <p class="mb-0">Upcoming Sessions</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-bolt me-2"></i>
+                    Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="/admin/sports/new" class="btn btn-outline-primary">
+                        <i class="fas fa-plus me-2"></i>
+                        Create New Sport
+                    </a>
+                    <a href="/sessions/new" class="btn btn-outline-success">
+                        <i class="fas fa-calendar-plus me-2"></i>
+                        Create New Session
+                    </a>
+                    <a href="/admin/reports" class="btn btn-outline-info">
+                        <i class="fas fa-chart-line me-2"></i>
+                        View Reports
+                    </a>
+                    <a href="/player/sessions" class="btn btn-outline-secondary">
+                        <i class="fas fa-eye me-2"></i>
+                        Browse All Sessions
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Admin Tips
+                </h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Create sports before players can create sessions
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        You can create and join sessions like any player
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Use reports to track platform activity
+                    </li>
+                    <li class="mb-0">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Monitor session popularity to add new sports
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- My Sports -->
+<div class="row">
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-futbol me-2"></i>
+                    My Sports
+                </h5>
+                <a href="/admin/sports" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body">
+                <% if (mySports.length > 0) { %>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Sport Name</th>
+                                    <th>Total Sessions</th>
+                                    <th>Active Sessions</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% mySports.forEach(sport => { %>
+                                    <tr>
+                                        <td>
+                                            <strong><%= sport.name %></strong>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info"><%= sport.sessions.length %></span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-success">
+                                                <%= sport.sessions.filter(s => s.status === 'active').length %>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="/sports/<%= sport.id %>" class="btn btn-sm btn-outline-primary">
+                                                View
+                                            </a>
+                                            <a href="/admin/sports/<%= sport.id %>/edit" class="btn btn-sm btn-outline-secondary">
+                                                Edit
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                <% } else { %>
+                    <div class="text-center py-4">
+                        <i class="fas fa-futbol fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">You haven't created any sports yet.</p>
+                        <a href="/admin/sports/new" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>
+                            Create Your First Sport
+                        </a>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-clock me-2"></i>
+                    Recent Activity
+                </h5>
+            </div>
+            <div class="card-body">
+                <% if (upcomingSessions.length > 0) { %>
+                    <% upcomingSessions.forEach(session => { %>
+                        <div class="d-flex align-items-start mb-3">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-calendar-alt text-primary"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="mb-1"><%= session.sport.name %></h6>
+                                <small class="text-muted">
+                                    <%= new Date(session.date).toLocaleDateString() %> • 
+                                    <%= session.creator.name %>
+                                    <br>
+                                    <%= session.players.length %>/<%= session.playersNeeded %> players
+                                </small>
+                            </div>
+                        </div>
+                    <% }); %>
+                    <a href="/player/sessions" class="btn btn-sm btn-outline-primary w-100">
+                        View All Sessions
+                    </a>
+                <% } else { %>
+                    <div class="text-center py-3">
+                        <i class="fas fa-calendar-times fa-2x text-muted mb-2"></i>
+                        <p class="text-muted mb-0">No recent activity</p>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>

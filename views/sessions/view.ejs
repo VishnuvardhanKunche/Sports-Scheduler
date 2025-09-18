@@ -1,0 +1,189 @@
+<%- include('../partials/header') %>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="mb-0">
+                        <i class="fas fa-futbol me-2"></i>
+                        <%= session.sport.name %> Session
+                    </h2>
+                    <div>
+                        <% if (session.status === 'active') { %>
+                            <span class="badge bg-success">Active</span>
+                        <% } else if (session.status === 'cancelled') { %>
+                            <span class="badge bg-danger">Cancelled</span>
+                        <% } else { %>
+                            <span class="badge bg-info">Completed</span>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Session Details -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h5><i class="fas fa-calendar me-2 text-primary"></i>Date & Time</h5>
+                        <p class="mb-1">
+                            <strong>Date:</strong> <%= new Date(session.date).toLocaleDateString() %>
+                        </p>
+                        <p>
+                            <strong>Time:</strong> <%= session.time %>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <h5><i class="fas fa-map-marker-alt me-2 text-primary"></i>Location</h5>
+                        <p><%= session.venue %></p>
+                    </div>
+                </div>
+
+                <!-- Organizer Info -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h5><i class="fas fa-user-tie me-2 text-primary"></i>Organized By</h5>
+                        <p><%= session.creator.name %></p>
+                        <small class="text-muted"><%= session.creator.email %></small>
+                    </div>
+                    <div class="col-md-6">
+                        <h5><i class="fas fa-users me-2 text-primary"></i>Players</h5>
+                        <div class="progress mb-2">
+                            <<div class="progress-bar bg-success" style="width: <%= (session.playersNeeded && session.playersNeeded > 0)? Math.min(100, Math.round((session.players.length / session.playersNeeded) * 100)): 0 %>%;">
+                        </div>
+                        <p class="mb-0">
+                            <%= session.players.length %> of <%= session.playersNeeded %> players joined
+                            <br>
+                            <small class="text-muted">
+                                <%= availableSlots %> slot<%= availableSlots !== 1 ? 's' : '' %> available
+                            </small>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Cancellation Notice -->
+                <% if (session.status === 'cancelled' && session.cancellationReason) { %>
+                    <div class="alert alert-danger">
+                        <h6><i class="fas fa-exclamation-triangle me-2"></i>Session Cancelled</h6>
+                        <p class="mb-0"><strong>Reason:</strong> <%= session.cancellationReason %></p>
+                    </div>
+                <% } %>
+
+                <!-- Action Buttons -->
+                <div class="d-flex gap-2 flex-wrap">
+                    <% if (canJoin) { %>
+                        <form action="/player/sessions/<%= session.id %>/join" method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-plus me-2"></i>
+                                Join Session
+                            </button>
+                        </form>
+                    <% } %>
+
+                    <% if (hasJoined && session.status === 'active') { %>
+                        <form action="/player/sessions/<%= session.id %>/leave" method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-warning" 
+                                    data-confirm="Are you sure you want to leave this session?">
+                                <i class="fas fa-sign-out-alt me-2"></i>
+                                Leave Session
+                            </button>
+                        </form>
+                    <% } %>
+
+                    <% if (isOwner && session.status === 'active') { %>
+                        <a href="/sessions/<%= session.id %>/edit" class="btn btn-primary">
+                            <i class="fas fa-edit me-2"></i>
+                            Edit Session
+                        </a>
+                        <a href="/sessions/<%= session.id %>/cancel" class="btn btn-danger">
+                            <i class="fas fa-times me-2"></i>
+                            Cancel Session
+                        </a>
+                    <% } %>
+
+                    <a href="/player/dashboard" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>
+                        Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Joined Players -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-users me-2"></i>
+                    Joined Players (<%= session.players.length %>)
+                </h5>
+            </div>
+            <div class="card-body">
+                <% if (session.players.length > 0) { %>
+                    <div class="list-group list-group-flush">
+                        <% session.players.forEach(player => { %>
+                            <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                <div>
+                                    <strong><%= player.name %></strong>
+                                    <% if (player.id === session.creatorId) { %>
+                                        <span class="badge bg-primary ms-2">Organizer</span>
+                                    <% } %>
+                                </div>
+                                <small class="text-muted">
+                                    <i class="fas fa-user-check"></i>
+                                </small>
+                            </div>
+                        <% }); %>
+                    </div>
+                <% } else { %>
+                    <div class="text-center py-3 text-muted">
+                        <i class="fas fa-user-plus fa-2x mb-2"></i>
+                        <p class="mb-0">No players have joined yet</p>
+                        <small>Be the first to join!</small>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+        <!-- Available Slots -->
+        <% if (availableSlots > 0 && session.status === 'active') { %>
+            <div class="card mt-3">
+                <div class="card-body text-center">
+                    <div class="display-4 text-success mb-2">
+                        <%= availableSlots %>
+                    </div>
+                    <h6>Available Slot<%= availableSlots !== 1 ? 's' : '' %></h6>
+                    <p class="text-muted mb-0">Join now to secure your spot!</p>
+                </div>
+            </div>
+        <% } %>
+
+        <!-- Session Info -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">Session Information</h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="border-end">
+                            <div class="h5 text-primary mb-1">
+                                <%= new Date(session.createdAt).toLocaleDateString() %>
+                            </div>
+                            <small class="text-muted">Created</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="h5 text-info mb-1">
+                            <%= session.sport.name %>
+                        </div>
+                        <small class="text-muted">Sport</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,145 @@
+<%- include('../partials/header') %>
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow">
+            <div class="card-header">
+                <h2 class="mb-0">
+                    <i class="fas fa-edit me-2"></i>
+                    Edit Session
+                </h2>
+            </div>
+            <div class="card-body">
+
+                <!-- Flash messages -->
+                <% if (error && error.length) { %>
+                  <div class="alert alert-danger">
+                    <%= error[0] %>
+                  </div>
+                <% } %>
+                <% if (success && success.length) { %>
+                  <div class="alert alert-success">
+                    <%= success[0] %>
+                  </div>
+                <% } %>
+
+                <form action="/sessions/<%= session.id %>" method="POST">
+                    <input type="hidden" name="_method" value="PUT">
+
+                    <div class="mb-3">
+                        <label for="sportId" class="form-label">
+                            <i class="fas fa-futbol me-2"></i>
+                            Sport
+                        </label>
+                        <select class="form-select" id="sportId" name="sportId" required>
+                            <% sports.forEach(sport => { %>
+                                <option value="<%= sport.id %>" <%= session.sportId == sport.id ? 'selected' : '' %>>
+                                    <%= sport.name %>
+                                </option>
+                            <% }); %>
+                        </select>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="date" class="form-label">
+                                    <i class="fas fa-calendar me-2"></i>
+                                    Date
+                                </label>
+                                <input type="date" 
+                                       class="form-control" 
+                                       id="date" 
+                                       name="date" 
+                                       required
+                                       value="<%= session.date %>"
+                                       min="<%= new Date().toISOString().split('T')[0] %>">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="time" class="form-label">
+                                    <i class="fas fa-clock me-2"></i>
+                                    Time
+                                </label>
+                                <input type="time" 
+                                       class="form-control" 
+                                       id="time" 
+                                       name="time" 
+                                       required
+                                       value="<%= session.time %>">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="venue" class="form-label">
+                            <i class="fas fa-map-marker-alt me-2"></i>
+                            Venue
+                        </label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="venue" 
+                               name="venue" 
+                               required
+                               minlength="2"
+                               maxlength="200"
+                               value="<%= session.venue %>"
+                               placeholder="Where will the session take place?">
+                        <div class="form-text">
+                            Be specific! Include address, field/court number, or any landmarks.
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="playersNeeded" class="form-label">
+                            <i class="fas fa-users me-2"></i>
+                            Players Needed
+                        </label>
+                        <input type="number" 
+                               class="form-control" 
+                               id="playersNeeded" 
+                               name="playersNeeded" 
+                               required
+                               min="<%= session.players ? session.players.length : 1 %>"
+                               max="50"
+                               value="<%= session.playersNeeded %>"
+                               placeholder="How many players do you need?">
+                        <div class="form-text">
+                            <% if (session.players && session.players.length > 0) { %>
+                                <span class="text-info">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Minimum <%= session.players.length %> (current joined players)
+                                </span>
+                            <% } else { %>
+                                This is the total number of players needed (including yourself if you're playing).
+                            <% } %>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <h6><i class="fas fa-exclamation-triangle me-2"></i>Important Notes:</h6>
+                        <ul class="mb-0">
+                            <li>Players who have already joined will be notified of changes</li>
+                            <li>You cannot reduce players needed below current joined count</li>
+                            <li>Changing date/time may affect player availability</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="/sessions/<%= session.id %>" class="btn btn-secondary">
+                            <i class="fas fa-times me-2"></i>
+                            Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>

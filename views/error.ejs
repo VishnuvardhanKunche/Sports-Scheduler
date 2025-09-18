@@ -1,0 +1,70 @@
+<%- include('partials/header') %>
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="text-center">
+            <div class="error-icon mb-4">
+                <% if (error.status === 404) { %>
+                    <i class="fas fa-search fa-4x text-muted"></i>
+                    <h1 class="display-1 text-muted">404</h1>
+                    <h2>Page Not Found</h2>
+                <% } else if (error.status === 403) { %>
+                    <i class="fas fa-lock fa-4x text-warning"></i>
+                    <h1 class="display-1 text-warning">403</h1>
+                    <h2>Access Denied</h2>
+                <% } else { %>
+                    <i class="fas fa-exclamation-triangle fa-4x text-danger"></i>
+                    <h1 class="display-1 text-danger"><%= error.status || 500 %></h1>
+                    <h2>Something Went Wrong</h2>
+                <% } %>
+            </div>
+            
+            <div class="error-message mb-4">
+                <p class="lead text-muted">
+                    <%= message %>
+                </p>
+                
+                <% if (error.status === 404) { %>
+                    <p class="text-muted">
+                        The page you're looking for might have been removed, had its name changed, 
+                        or is temporarily unavailable.
+                    </p>
+                <% } else if (error.status === 403) { %>
+                    <p class="text-muted">
+                        You don't have permission to access this resource.
+                    </p>
+                <% } else { %>
+                    <p class="text-muted">
+                        We're sorry for the inconvenience. Please try again later.
+                    </p>
+                <% } %>
+            </div>
+            
+            <div class="error-actions">
+                <a href="/" class="btn btn-primary me-2">
+                    <i class="fas fa-home me-2"></i>
+                    Go Home
+                </a>
+                <button onclick="history.back()" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>
+                    Go Back
+                </button>
+            </div>
+            
+            <% if (process.env.NODE_ENV === 'development' && error.stack) { %>
+                <div class="mt-5">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Debug Information</h5>
+                        </div>
+                        <div class="card-body text-start">
+                            <pre class="text-danger"><%= error.stack %></pre>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<%- include('partials/footer') %>

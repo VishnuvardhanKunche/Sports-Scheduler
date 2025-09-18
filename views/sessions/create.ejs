@@ -1,0 +1,125 @@
+<%- include('../partials/header') %>
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow">
+            <div class="card-header">
+                <h2 class="mb-0">
+                    <i class="fas fa-plus-circle me-2"></i>
+                    Create New Session
+                </h2>
+            </div>
+            <div class="card-body">
+                <form action="/sessions" method="POST">
+                    <div class="mb-3">
+                        <label for="sportId" class="form-label">
+                            <i class="fas fa-futbol me-2"></i>
+                            Sport
+                        </label>
+                        <select class="form-select" id="sportId" name="sportId" required>
+                            <option value="">Choose a sport...</option>
+                            <% sports.forEach(sport => { %>
+                                <option value="<%= sport.id %>"><%= sport.name %></option>
+                            <% }); %>
+                        </select>
+                        <% if (sports.length === 0) { %>
+                            <div class="form-text text-warning">
+                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                No sports available. Contact an admin to create sports first.
+                            </div>
+                        <% } %>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="date" class="form-label">
+                                    <i class="fas fa-calendar me-2"></i>
+                                    Date
+                                </label>
+                                <input type="date" 
+                                       class="form-control" 
+                                       id="date" 
+                                       name="date" 
+                                       required
+                                       min="<%= new Date().toISOString().split('T')[0] %>">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="time" class="form-label">
+                                    <i class="fas fa-clock me-2"></i>
+                                    Time
+                                </label>
+                                <input type="time" 
+                                       class="form-control" 
+                                       id="time" 
+                                       name="time" 
+                                       required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="venue" class="form-label">
+                            <i class="fas fa-map-marker-alt me-2"></i>
+                            Venue
+                        </label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="venue" 
+                               name="venue" 
+                               required
+                               minlength="2"
+                               maxlength="200"
+                               placeholder="Where will the session take place?">
+                        <div class="form-text">
+                            Be specific! Include address, field/court number, or any landmarks.
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="playersNeeded" class="form-label">
+                            <i class="fas fa-users me-2"></i>
+                            Players Needed
+                        </label>
+                        <input type="number" 
+                               class="form-control" 
+                               id="playersNeeded" 
+                               name="playersNeeded" 
+                               required
+                               min="1"
+                               max="50"
+                               placeholder="How many players do you need?">
+                        <div class="form-text">
+                            This is the total number of players needed (including yourself if you're playing).
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="/player/dashboard" class="btn btn-secondary">
+                            <i class="fas fa-times me-2"></i>
+                            Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary" <% if (sports.length === 0) { %>disabled<% } %>>
+                            <i class="fas fa-plus me-2"></i>
+                            Create Session
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Set minimum date to today
+    document.getElementById('date').min = new Date().toISOString().split('T')[0];
+    
+    // Set default time to current time + 1 hour
+    const now = new Date();
+    now.setHours(now.getHours() + 1);
+    document.getElementById('time').value = now.toTimeString().slice(0, 5);
+</script>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,111 @@
+<%- include('../partials/header') %>
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow">
+            <div class="card-header">
+                <h2 class="mb-0">
+                    <i class="fas fa-futbol me-2"></i>
+                    Create New Sport
+                </h2>
+            </div>
+            <div class="card-body">
+                <form action="/admin/sports" method="POST">
+                    <div class="mb-4">
+                        <label for="name" class="form-label">
+                            <i class="fas fa-tag me-2"></i>
+                            Sport Name
+                        </label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="name" 
+                               name="name" 
+                               required
+                               minlength="2"
+                               maxlength="50"
+                               placeholder="Enter sport name (e.g., Football, Basketball)"
+                               autocomplete="off">
+                        <div class="form-text">
+                            Choose a clear, recognizable name for the sport.
+                        </div>
+                    </div>
+
+                    <div class="examples-section mb-4">
+                        <h6 class="text-muted">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            Popular Sports Examples:
+                        </h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="badge bg-light text-dark sport-suggestion" onclick="setSportName('Football')">Football</span>
+                            <span class="badge bg-light text-dark sport-suggestion" onclick="setSportName('Basketball')">Basketball</span>
+                            <span class="badge bg-light text-dark sport-suggestion" onclick="setSportName('Tennis')">Tennis</span>
+                            <span class="badge bg-light text-dark sport-suggestion" onclick="setSportName('Cricket')">Cricket</span>
+                            <span class="badge bg-light text-dark sport-suggestion" onclick="setSportName('Badminton')">Badminton</span>
+                            <span class="badge bg-light text-dark sport-suggestion" onclick="setSportName('Volleyball')">Volleyball</span>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="/admin/sports" class="btn btn-secondary">
+                            <i class="fas fa-times me-2"></i>
+                            Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>
+                            Create Sport
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Info Card -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h6 class="card-title">
+                    <i class="fas fa-info-circle me-2 text-info"></i>
+                    What happens next?
+                </h6>
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Sport will be available for session creation
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Players can create sessions for this sport
+                    </li>
+                    <li class="mb-0">
+                        <i class="fas fa-check text-success me-2"></i>
+                        You can track its popularity in reports
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function setSportName(name) {
+        document.getElementById('name').value = name;
+        document.getElementById('name').focus();
+    }
+
+    // Style sport suggestions as clickable
+    document.addEventListener('DOMContentLoaded', function() {
+        const suggestions = document.querySelectorAll('.sport-suggestion');
+        suggestions.forEach(suggestion => {
+            suggestion.style.cursor = 'pointer';
+            suggestion.addEventListener('mouseover', function() {
+                this.classList.remove('bg-light', 'text-dark');
+                this.classList.add('bg-primary', 'text-white');
+            });
+            suggestion.addEventListener('mouseout', function() {
+                this.classList.remove('bg-primary', 'text-white');
+                this.classList.add('bg-light', 'text-dark');
+            });
+        });
+    });
+</script>
+
+<%- include('../partials/footer') %>

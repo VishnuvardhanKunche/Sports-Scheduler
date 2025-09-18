@@ -1,0 +1,28 @@
+{
+  "development": {
+    "username": "postgres",
+    "password": "postgres",
+    "database": "sports_scheduler_dev",
+    "host": "127.0.0.1",
+    "dialect": "postgresql",
+    "port": 5432
+  },
+  "test": {
+    "username": "postgres",
+    "password": "postgres", 
+    "database": "sports_scheduler_test",
+    "host": "127.0.0.1",
+    "dialect": "postgresql",
+    "logging": false
+  },
+  "production": {
+    "use_env_variable": "DATABASE_URL",
+    "dialect": "postgresql",
+    "dialectOptions": {
+      "ssl": {
+        "require": true,
+        "rejectUnauthorized": false
+      }
+    }
+  }
+}

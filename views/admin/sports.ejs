@@ -1,0 +1,111 @@
+<%- include('../partials/header') %>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="fas fa-futbol me-2"></i>
+        Manage Sports
+    </h1>
+    <a href="/admin/sports/new" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>
+        Create New Sport
+    </a>
+</div>
+
+<% if (sports.length > 0) { %>
+    <div class="row">
+        <% sports.forEach(sport => { %>
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><%= sport.name %></h5>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                                Actions
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="/sports/<%= sport.id %>">View Details</a></li>
+                                <li><a class="dropdown-item" href="/admin/sports/<%= sport.id %>/edit">Edit Sport</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center mb-3">
+                            <div class="col-4">
+                                <div class="display-6 text-primary"><%= sport.sessions.length %></div>
+                                <small class="text-muted">Total Sessions</small>
+                            </div>
+                            <div class="col-4">
+                                <div class="display-6 text-success">
+                                    <%= sport.sessions.filter(s => s.status === 'active').length %>
+                                </div>
+                                <small class="text-muted">Active Sessions</small>
+                            </div>
+                            <div class="col-4">
+                                <div class="display-6 text-info">
+                                    <%= sport.sessions.reduce((total, s) => total + s.players.length, 0) %>
+                                </div>
+                                <small class="text-muted">Total Players</small>
+                            </div>
+                        </div>
+
+                        <% if (sport.sessions.length > 0) { %>
+                            <h6 class="text-muted mb-2">Recent Sessions:</h6>
+                            <% sport.sessions.slice(0, 3).forEach(session => { %>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <small>
+                                        <%= new Date(session.date).toLocaleDateString() %>
+                                        <% if (session.status === 'cancelled') { %>
+                                            <span class="badge bg-danger">Cancelled</span>
+                                        <% } else if (session.date < new Date().toISOString().split('T')[0]) { %>
+                                            <span class="badge bg-success">Completed</span>
+                                        <% } else { %>
+                                            <span class="badge bg-primary">Active</span>
+                                        <% } %>
+                                    </small>
+                                    <small class="text-muted">
+                                        <%= session.players.length %>/<%= session.playersNeeded %>
+                                    </small>
+                                </div>
+                            <% }); %>
+                            
+                            <% if (sport.sessions.length > 3) { %>
+                                <small class="text-muted">
+                                    ... and <%= sport.sessions.length - 3 %> more sessions
+                                </small>
+                            <% } %>
+                        <% } else { %>
+                            <div class="text-center py-3 text-muted">
+                                <i class="fas fa-calendar-times fa-2x mb-2"></i>
+                                <p class="mb-0">No sessions created yet</p>
+                            </div>
+                        <% } %>
+                    </div>
+                    <div class="card-footer">
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                            <a href="/sports/<%= sport.id %>" class="btn btn-sm btn-outline-primary">
+                                View Sport
+                            </a>
+                            <a href="/admin/sports/<%= sport.id %>/edit" class="btn btn-sm btn-outline-secondary">
+                                Edit Sport
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <% }); %>
+    </div>
+<% } else { %>
+    <div class="text-center py-5">
+        <i class="fas fa-futbol fa-4x text-muted mb-4"></i>
+        <h3>No Sports Created Yet</h3>
+        <p class="text-muted mb-4">
+            Create your first sport to allow players to start organizing sessions.
+        </p>
+        <a href="/admin/sports/new" class="btn btn-primary btn-lg">
+            <i class="fas fa-plus me-2"></i>
+            Create Your First Sport
+        </a>
+    </div>
+<% } %>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,173 @@
+<%- include('partials/header') %>
+
+<div class="hero-section bg-primary text-white text-center py-5 mb-5 rounded">
+    <div class="container">
+        <h1 class="display-4 fw-bold mb-3">
+            <i class="fas fa-trophy me-3"></i>
+            Welcome to Sports Scheduler
+        </h1>
+        <p class="lead mb-4">
+            The easiest way to organize sports sessions and connect with other players in your community.
+        </p>
+        <% if (!user) { %>
+            <div class="d-grid gap-2 d-md-block">
+                <a href="/auth/signup" class="btn btn-light btn-lg px-4 me-3">
+                    <i class="fas fa-user-plus me-2"></i>Get Started
+                </a>
+                <a href="/auth/login" class="btn btn-outline-light btn-lg px-4">
+                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                </a>
+            </div>
+        <% } else { %>
+            <div class="d-grid gap-2 d-md-block">
+                <% if (user.role === 'admin') { %>
+                    <a href="/admin/dashboard" class="btn btn-light btn-lg px-4 me-3">
+                        <i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard
+                    </a>
+                <% } else { %>
+                    <a href="/player/dashboard" class="btn btn-light btn-lg px-4 me-3">
+                        <i class="fas fa-tachometer-alt me-2"></i>My Dashboard
+                    </a>
+                <% } %>
+                <a href="/sessions/new" class="btn btn-outline-light btn-lg px-4">
+                    <i class="fas fa-plus me-2"></i>Create Session
+                </a>
+            </div>
+        <% } %>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-md-4">
+        <div class="card h-100 text-center">
+            <div class="card-body">
+                <div class="display-4 text-primary mb-3">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h5 class="card-title">Connect with Players</h5>
+                <p class="card-text">Find other sports enthusiasts in your area and join their sessions or create your own.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 text-center">
+            <div class="card-body">
+                <div class="display-4 text-success mb-3">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <h5 class="card-title">Easy Scheduling</h5>
+                <p class="card-text">Schedule sports sessions with just a few clicks. Set date, time, venue, and player requirements.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 text-center">
+            <div class="card-body">
+                <div class="display-4 text-warning mb-3">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <h5 class="card-title">Track & Manage</h5>
+                <p class="card-text">Keep track of your sessions, view participation statistics, and manage your sports activities.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Section -->
+<div class="row mb-5">
+    <div class="col-12">
+        <h2 class="text-center mb-4">Platform Statistics</h2>
+    </div>
+    <div class="col-md-4 text-center">
+        <div class="display-6 text-primary fw-bold"><%= stats.totalSports %></div>
+        <p class="text-muted">Sports Available</p>
+    </div>
+    <div class="col-md-4 text-center">
+        <div class="display-6 text-success fw-bold"><%= stats.totalUsers %></div>
+        <p class="text-muted">Active Players</p>
+    </div>
+    <div class="col-md-4 text-center">
+        <div class="display-6 text-warning fw-bold"><%= stats.totalSessions %></div>
+        <p class="text-muted">Upcoming Sessions</p>
+    </div>
+</div>
+
+<!-- Upcoming Sessions -->
+<% if (upcomingSessions && upcomingSessions.length > 0) { %>
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4">
+            <i class="fas fa-clock me-2"></i>
+            Upcoming Sessions
+        </h2>
+    </div>
+    <% upcomingSessions.forEach(session => { %>
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-futbol me-2 text-primary"></i>
+                        <%= session.sport.name %>
+                    </h5>
+                    <p class="card-text">
+                        <small class="text-muted">
+                            <i class="fas fa-user me-1"></i>
+                            Organized by <%= session.creator.name %>
+                        </small>
+                    </p>
+                    <p class="card-text">
+                        <i class="fas fa-calendar me-2"></i>
+                        <%= new Date(session.date).toLocaleDateString() %>
+                        <br>
+                        <i class="fas fa-clock me-2"></i>
+                        <%= session.time %>
+                        <br>
+                        <i class="fas fa-map-marker-alt me-2"></i>
+                        <%= session.venue %>
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <%= session.players.length %>/<%= session.playersNeeded %> players
+                        </small>
+                        <% if (user) { %>
+                            <a href="/sessions/<%= session.id %>" class="btn btn-sm btn-primary">
+                                View Details
+                            </a>
+                        <% } else { %>
+                            <a href="/auth/login" class="btn btn-sm btn-outline-primary">
+                                Login to Join
+                            </a>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <% }); %>
+</div>
+
+<div class="text-center mt-4">
+    <a href="/player/sessions" class="btn btn-primary">
+        <i class="fas fa-eye me-2"></i>
+        View All Sessions
+    </a>
+</div>
+<% } else { %>
+<div class="text-center py-5">
+    <div class="display-1 text-muted mb-3">
+        <i class="fas fa-calendar-times"></i>
+    </div>
+    <h3>No upcoming sessions yet</h3>
+    <p class="text-muted mb-4">Be the first to create a session and get the community started!</p>
+    <% if (user) { %>
+        <a href="/sessions/new" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Create First Session
+        </a>
+    <% } else { %>
+        <a href="/auth/signup" class="btn btn-primary">
+            <i class="fas fa-user-plus me-2"></i>Join Now
+        </a>
+    <% } %>
+</div>
+<% } %>
+
+<%- include('partials/footer') %>

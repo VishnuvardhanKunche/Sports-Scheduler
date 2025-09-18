@@ -1,0 +1,252 @@
+<%- include('../partials/header') %>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="fas fa-chart-bar me-2"></i>
+        Session Reports
+    </h1>
+    <div class="text-muted">
+        <i class="fas fa-calendar-alt me-2"></i>
+        <%= dateRange.start %> to <%= dateRange.end %>
+    </div>
+</div>
+
+<!-- Date Range Filter -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-filter me-2"></i>
+            Filter by Date Range
+        </h5>
+    </div>
+    <div class="card-body">
+        <form method="GET" action="/admin/reports" class="row g-3">
+            <div class="col-md-4">
+                <label for="startDate" class="form-label">Start Date:</label>
+                <input type="date" 
+                       class="form-control" 
+                       id="startDate" 
+                       name="startDate" 
+                       value="<%= dateRange.start %>">
+            </div>
+            <div class="col-md-4">
+                <label for="endDate" class="form-label">End Date:</label>
+                <input type="date" 
+                       class="form-control" 
+                       id="endDate" 
+                       name="endDate" 
+                       value="<%= dateRange.end %>">
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="fas fa-search me-2"></i>
+                    Apply Filter
+                </button>
+                <a href="/admin/reports" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-2"></i>
+                    Reset
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Statistics Overview -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+                <i class="fas fa-calendar-alt fa-2x mb-2"></i>
+                <h3><%= stats.totalSessions %></h3>
+                <p class="mb-0">Total Sessions</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <i class="fas fa-check-circle fa-2x mb-2"></i>
+                <h3><%= stats.activeSessions %></h3>
+                <p class="mb-0">Active Sessions</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-danger text-white">
+            <div class="card-body text-center">
+                <i class="fas fa-times-circle fa-2x mb-2"></i>
+                <h3><%= stats.cancelledSessions %></h3>
+                <p class="mb-0">Cancelled Sessions</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body text-center">
+                <i class="fas fa-users fa-2x mb-2"></i>
+                <h3><%= stats.totalUniquePlayers %></h3>
+                <p class="mb-0">Unique Players</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sport Popularity -->
+<div class="row">
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-trophy me-2"></i>
+                    Sport Popularity
+                </h5>
+            </div>
+            <div class="card-body">
+                <% if (sportPopularity.length > 0) { %>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Sport</th>
+                                    <th>Sessions</th>
+                                    <th>Total Players</th>
+                                    <th>Avg Players</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% sportPopularity.forEach((sport, index) => { %>
+                                    <tr>
+                                        <td>
+                                            <% if (index === 0) { %>
+                                                <i class="fas fa-crown text-warning me-2"></i>
+                                            <% } else if (index === 1) { %>
+                                                <i class="fas fa-medal text-secondary me-2"></i>
+                                            <% } else if (index === 2) { %>
+                                                <i class="fas fa-award text-warning me-2"></i>
+                                            <% } else { %>
+                                                <i class="fas fa-futbol text-muted me-2"></i>
+                                            <% } %>
+                                            <strong><%= sport.name %></strong>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-primary"><%= sport.sessionCount %></span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-success"><%= sport.totalPlayers %></span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info">
+                                                <%= sport.sessionCount > 0 ? Math.round(sport.totalPlayers / sport.sessionCount * 10) / 10 : 0 %>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                <% } else { %>
+                    <div class="text-center py-4 text-muted">
+                        <i class="fas fa-chart-line fa-3x mb-3"></i>
+                        <p>No sports data available for the selected period</p>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Sessions -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-clock me-2"></i>
+                    Recent Sessions
+                </h5>
+            </div>
+            <div class="card-body">
+                <% if (sessions.length > 0) { %>
+                    <div class="list-group list-group-flush">
+                        <% sessions.slice(0, 10).forEach(session => { %>
+                            <div class="list-group-item d-flex justify-content-between align-items-start px-0">
+                                <div class="ms-2 me-auto">
+                                    <div class="fw-bold">
+                                        <%= session.sport.name %>
+                                        <% if (session.status === 'cancelled') { %>
+                                            <span class="badge bg-danger">Cancelled</span>
+                                        <% } else if (session.status === 'completed') { %>
+                                            <span class="badge bg-success">Completed</span>
+                                        <% } else { %>
+                                            <span class="badge bg-primary">Active</span>
+                                        <% } %>
+                                    </div>
+                                    <small class="text-muted">
+                                        <%= new Date(session.date).toLocaleDateString() %> • 
+                                        <%= session.creator.name %> • 
+                                        <%= session.venue %>
+                                    </small>
+                                </div>
+                                <span class="badge bg-light text-dark">
+                                    <%= session.players.length %>/<%= session.playersNeeded %>
+                                </span>
+                            </div>
+                        <% }); %>
+                    </div>
+                    <% if (sessions.length > 10) { %>
+                        <div class="text-center mt-3">
+                            <small class="text-muted">... and <%= sessions.length - 10 %> more sessions</small>
+                        </div>
+                    <% } %>
+                <% } else { %>
+                    <div class="text-center py-4 text-muted">
+                        <i class="fas fa-calendar-times fa-3x mb-3"></i>
+                        <p>No sessions found for the selected period</p>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats Cards -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-pie me-2"></i>
+                    Detailed Statistics
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3 border-end">
+                        <div class="h4 text-primary mb-1">
+                            <%= sessions.length > 0 ? Math.round((stats.activeSessions / stats.totalSessions) * 100) : 0 %>%
+                        </div>
+                        <small class="text-muted">Session Success Rate</small>
+                    </div>
+                    <div class="col-md-3 border-end">
+                        <div class="h4 text-success mb-1">
+                            <%= sportPopularity.length > 0 ? Math.round(sportPopularity.reduce((avg, sport) => avg + (sport.totalPlayers / sport.sessionCount), 0) / sportPopularity.length * 10) / 10 : 0 %>
+                        </div>
+                        <small class="text-muted">Avg Players per Session</small>
+                    </div>
+                    <div class="col-md-3 border-end">
+                        <div class="h4 text-info mb-1">
+                            <%= sportPopularity.length %>
+                        </div>
+                        <small class="text-muted">Active Sports</small>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="h4 text-warning mb-1">
+                            <%= sessions.length > 0 ? Math.round((stats.cancelledSessions / stats.totalSessions) * 100) : 0 %>%
+                        </div>
+                        <small class="text-muted">Cancellation Rate</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>

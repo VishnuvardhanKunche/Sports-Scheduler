@@ -1,0 +1,146 @@
+<%- include('../partials/header') %>
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow border-danger">
+            <div class="card-header bg-danger text-white">
+                <h2 class="mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Cancel Session
+                </h2>
+            </div>
+            <div class="card-body">
+                <!-- Session Info -->
+                <div class="alert alert-info">
+                    <h5 class="alert-heading">
+                        <i class="fas fa-futbol me-2"></i>
+                        <%= session.sport.name %> Session
+                    </h5>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="mb-1">
+                                <i class="fas fa-calendar me-2"></i>
+                                <strong>Date:</strong> <%= new Date(session.date).toLocaleDateString() %>
+                            </p>
+                            <p class="mb-1">
+                                <i class="fas fa-clock me-2"></i>
+                                <strong>Time:</strong> <%= session.time %>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1">
+                                <i class="fas fa-map-marker-alt me-2"></i>
+                                <strong>Venue:</strong> <%= session.venue %>
+                            </p>
+                            <p class="mb-0">
+                                <i class="fas fa-users me-2"></i>
+                                <strong>Players:</strong> <%= session.players.length %>/<%= session.playersNeeded %>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Warning Message -->
+                <div class="alert alert-warning">
+                    <h6><i class="fas fa-exclamation-triangle me-2"></i>Are you sure you want to cancel this session?</h6>
+                    <ul class="mb-0">
+                        <li><strong><%= session.players.length %> player<%= session.players.length !== 1 ? 's' : '' %></strong> will be notified about the cancellation</li>
+                        <li>This action <strong>cannot be undone</strong></li>
+                        <li>You must provide a reason for cancellation</li>
+                    </ul>
+                </div>
+
+                <!-- Joined Players List -->
+                <% if (session.players.length > 0) { %>
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h6 class="mb-0">Players who will be notified:</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <% session.players.forEach((player, index) => { %>
+                                    <div class="col-md-6 mb-1">
+                                        <i class="fas fa-user me-2 text-muted"></i>
+                                        <%= player.name %>
+                                    </div>
+                                <% }); %>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+
+                <!-- Cancellation Form -->
+                <form action="/sessions/<%= session.id %>/cancel" method="POST">
+                    <div class="mb-4">
+                        <label for="reason" class="form-label">
+                            <i class="fas fa-comment me-2"></i>
+                            Reason for Cancellation <span class="text-danger">*</span>
+                        </label>
+                        <textarea class="form-control" 
+                                  id="reason" 
+                                  name="reason" 
+                                  rows="4"
+                                  required
+                                  minlength="10"
+                                  maxlength="500"
+                                  placeholder="Please provide a clear reason for cancelling this session. This will be shown to all players who joined."></textarea>
+                        <div class="form-text">
+                            Minimum 10 characters, maximum 500 characters.
+                        </div>
+                    </div>
+
+                    <div class="examples-section mb-4">
+                        <h6 class="text-muted">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            Example reasons:
+                        </h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="badge bg-light text-dark reason-suggestion" onclick="setReason('Weather conditions are unsafe for playing')">Weather Issue</span>
+                            <span class="badge bg-light text-dark reason-suggestion" onclick="setReason('Venue is no longer available due to maintenance')">Venue Issue</span>
+                            <span class="badge bg-light text-dark reason-suggestion" onclick="setReason('Personal emergency - unable to organize the session')">Emergency</span>
+                            <span class="badge bg-light text-dark reason-suggestion" onclick="setReason('Not enough players joined by the deadline')">Low Participation</span>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="/sessions/<%= session.id %>" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            Keep Session
+                        </a>
+                        <button type="submit" class="btn btn-danger" 
+                                data-confirm="Are you absolutely sure you want to cancel this session? This cannot be undone.">
+                            <i class="fas fa-ban me-2"></i>
+                            Cancel Session
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function setReason(reason) {
+        document.getElementById('reason').value = reason;
+        document.getElementById('reason').focus();
+    }
+
+    // Style reason suggestions as clickable
+    document.addEventListener('DOMContentLoaded', function() {
+        const suggestions = document.querySelectorAll('.reason-suggestion');
+        suggestions.forEach(suggestion => {
+            suggestion.style.cursor = 'pointer';
+            suggestion.addEventListener('mouseover', function() {
+                this.classList.remove('bg-light', 'text-dark');
+                this.classList.add('bg-danger', 'text-white');
+            });
+            suggestion.addEventListener('mouseout', function() {
+                this.classList.remove('bg-danger', 'text-white');
+                this.classList.add('bg-light', 'text-dark');
+            });
+        });
+    });
+</script>
+
+<%- include('../partials/footer') %>

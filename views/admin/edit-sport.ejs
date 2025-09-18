@@ -1,0 +1,106 @@
+<%- include('../partials/header') %>
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow">
+            <div class="card-header">
+                <h2 class="mb-0">
+                    <i class="fas fa-edit me-2"></i>
+                    Edit Sport
+                </h2>
+            </div>
+            <div class="card-body">
+                <form action="/admin/sports/<%= sport.id %>?_method=PUT" method="POST">
+                    <div class="mb-4">
+                        <label for="name" class="form-label">
+                            <i class="fas fa-tag me-2"></i>
+                            Sport Name
+                        </label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="name" 
+                               name="name" 
+                               required
+                               minlength="2"
+                               maxlength="50"
+                               value="<%= sport.name %>"
+                               placeholder="Enter sport name"
+                               autocomplete="off">
+                        <div class="form-text">
+                            Choose a clear, recognizable name for the sport.
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle me-2"></i>Current Sport Information</h6>
+                        <ul class="mb-0">
+                            <li><strong>Created:</strong> <%= new Date(sport.createdAt).toLocaleDateString() %></li>
+                            <li><strong>Total Sessions:</strong> <%= sport.sessions ? sport.sessions.length : 0 %></li>
+                            <li><strong>Active Sessions:</strong> <%= sport.sessions ? sport.sessions.filter(s => s.status === 'active').length : 0 %></li>
+                        </ul>
+                    </div>
+
+                    <% if (sport.sessions && sport.sessions.length > 0) { %>
+                        <div class="alert alert-warning">
+                            <h6><i class="fas fa-exclamation-triangle me-2"></i>Important</h6>
+                            <p class="mb-0">
+                                This sport has existing sessions. Changing the name will update it for all existing and future sessions.
+                            </p>
+                        </div>
+                    <% } %>
+
+                    <div class="examples-section mb-4">
+                        <h6 class="text-muted">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            Popular Sports Examples:
+                        </h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="badge bg-light text-dark sport-suggestion" onclick="setSportName('Football')">Football</span>
+                            <span class="badge bg-light text-dark sport-suggestion" onclick="setSportName('Basketball')">Basketball</span>
+                            <span class="badge bg-light text-dark sport-suggestion" onclick="setSportName('Tennis')">Tennis</span>
+                            <span class="badge bg-light text-dark sport-suggestion" onclick="setSportName('Cricket')">Cricket</span>
+                            <span class="badge bg-light text-dark sport-suggestion" onclick="setSportName('Badminton')">Badminton</span>
+                            <span class="badge bg-light text-dark sport-suggestion" onclick="setSportName('Volleyball')">Volleyball</span>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="/admin/sports" class="btn btn-secondary">
+                            <i class="fas fa-times me-2"></i>
+                            Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>
+                            Update Sport
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function setSportName(name) {
+        document.getElementById('name').value = name;
+        document.getElementById('name').focus();
+    }
+
+    // Style sport suggestions as clickable
+    document.addEventListener('DOMContentLoaded', function() {
+        const suggestions = document.querySelectorAll('.sport-suggestion');
+        suggestions.forEach(suggestion => {
+            suggestion.style.cursor = 'pointer';
+            suggestion.addEventListener('mouseover', function() {
+                this.classList.remove('bg-light', 'text-dark');
+                this.classList.add('bg-primary', 'text-white');
+            });
+            suggestion.addEventListener('mouseout', function() {
+                this.classList.remove('bg-primary', 'text-white');
+                this.classList.add('bg-light', 'text-dark');
+            });
+        });
+    });
+</script>
+
+<%- include('../partials/footer') %>

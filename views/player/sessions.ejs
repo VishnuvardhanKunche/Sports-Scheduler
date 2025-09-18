@@ -1,0 +1,175 @@
+<%- include('../partials/header') %>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="fas fa-search me-2"></i>
+        Available Sessions
+    </h1>
+    <a href="/sessions/new" class="btn btn-success">
+        <i class="fas fa-plus me-2"></i>
+        Create Session
+    </a>
+</div>
+
+<!-- Filter Section -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" action="/player/sessions" class="row g-3">
+            <div class="col-md-6">
+                <label for="sport" class="form-label">Filter by Sport:</label>
+                <select name="sport" id="sport" class="form-select" onchange="this.form.submit()">
+                    <option value="">All Sports</option>
+                    <% sports.forEach(sport => { %>
+                        <option value="<%= sport.id %>" 
+                                <%= currentSportFilter == sport.id ? 'selected' : '' %>>
+                            <%= sport.name %>
+                        </option>
+                    <% }); %>
+                </select>
+            </div>
+            <div class="col-md-6 d-flex align-items-end">
+                <button type="button" class="btn btn-outline-secondary" onclick="window.location.href='/player/sessions'">
+                    <i class="fas fa-times me-2"></i>
+                    Clear Filter
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Sessions List -->
+<% if (sessions.length > 0) { %>
+    <div class="row">
+        <% sessions.forEach(session => { %>
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-futbol me-2 text-primary"></i>
+                            <%= session.sport.name %>
+                            <% if (joinedSessionIds.includes(session.id)) { %>
+                                <span class="badge bg-success">Joined</span>
+                            <% } %>
+                        </h5>
+                        
+                        <p class="card-text">
+                            <small class="text-muted">
+                                <i class="fas fa-user me-1"></i>
+                                Organized by <%= session.creator.name %>
+                            </small>
+                        </p>
+                        
+                        <div class="session-details mb-3">
+                            <p class="card-text">
+                                <i class="fas fa-calendar me-2"></i>
+                                <%= new Date(session.date).toLocaleDateString() %>
+                                <br>
+                                <i class="fas fa-clock me-2"></i>
+                                <%= session.time %>
+                                <br>
+                                <i class="fas fa-map-marker-alt me-2"></i>
+                                <%= session.venue %>
+                            </p>
+                        </div>
+                        
+                        <div class="players-info mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted">
+                                    <i class="fas fa-users me-1"></i>
+                                    <%= session.players.length %>/<%= session.playersNeeded %> players
+                                </span>
+                                <<div class="progress-bar bg-success" style="width: <%= (session.playersNeeded && session.playersNeeded > 0)? Math.min(100, Math.round((session.players.length / session.playersNeeded) * 100)): 0 %>%;">
+                                </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer">
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-between">
+                            <a href="/sessions/<%= session.id %>" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-eye me-1"></i>
+                                View Details
+                            </a>
+                            
+                            <% if (joinedSessionIds.includes(session.id)) { %>
+                                <span class="btn btn-success btn-sm disabled">
+                                    <i class="fas fa-check me-1"></i>
+                                    Already Joined
+                                </span>
+                            <% } else if (session.players.length >= session.playersNeeded) { %>
+                                <span class="btn btn-secondary btn-sm disabled">
+                                    <i class="fas fa-users me-1"></i>
+                                    Full
+                                </span>
+                            <% } else { %>
+                                <form action="/player/sessions/<%= session.id %>/join" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-success btn-sm">
+                                        <i class="fas fa-plus me-1"></i>
+                                        Join
+                                    </button>
+                                </form>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <% }); %>
+    </div>
+
+    <!-- Pagination -->
+    <% if (pagination.totalPages > 1) { %>
+        <nav aria-label="Sessions pagination">
+            <ul class="pagination justify-content-center">
+                <% if (pagination.hasPrev) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=<%= pagination.currentPage - 1 %><%= currentSportFilter ? '&sport=' + currentSportFilter : '' %>">
+                            Previous
+                        </a>
+                    </li>
+                <% } %>
+                
+                <% for(let i = 1; i <= pagination.totalPages; i++) { %>
+                    <li class="page-item <%= pagination.currentPage === i ? 'active' : '' %>">
+                        <a class="page-link" href="?page=<%= i %><%= currentSportFilter ? '&sport=' + currentSportFilter : '' %>">
+                            <%= i %>
+                        </a>
+                    </li>
+                <% } %>
+                
+                <% if (pagination.hasNext) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=<%= pagination.currentPage + 1 %><%= currentSportFilter ? '&sport=' + currentSportFilter : '' %>">
+                            Next
+                        </a>
+                    </li>
+                <% } %>
+            </ul>
+        </nav>
+    <% } %>
+
+<% } else { %>
+    <div class="text-center py-5">
+        <i class="fas fa-calendar-times fa-4x text-muted mb-4"></i>
+        <h3>No Available Sessions</h3>
+        <% if (currentSportFilter) { %>
+            <p class="text-muted mb-4">
+                No sessions found for the selected sport. Try removing the filter or check back later.
+            </p>
+            <a href="/player/sessions" class="btn btn-outline-primary me-2">
+                <i class="fas fa-times me-2"></i>
+                Clear Filter
+            </a>
+        <% } else { %>
+            <p class="text-muted mb-4">
+                No sessions are currently available. Why not create the first one?
+            </p>
+        <% } %>
+        <a href="/sessions/new" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>
+            Create First Session
+        </a>
+    </div>
+<% } %>
+
+<%- include('../partials/footer') %>
