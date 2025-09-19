@@ -28,7 +28,7 @@ Sports Scheduler is a web application that helps players and administrators mana
 
 ## Live Application
 
-
+https://sports-scheduler-3hli.onrender.com
 
 ## Video
 
