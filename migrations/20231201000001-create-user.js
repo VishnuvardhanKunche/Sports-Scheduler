@@ -37,7 +37,6 @@ module.exports = {
       }
     });
 
-    // Add indexes for better performance
     await queryInterface.addIndex('Users', ['email']);
     await queryInterface.addIndex('Users', ['role']);
   },

@@ -64,7 +64,6 @@ module.exports = {
       }
     });
 
-    // Add indexes for better performance
     await queryInterface.addIndex('Sessions', ['sportId']);
     await queryInterface.addIndex('Sessions', ['creatorId']);
     await queryInterface.addIndex('Sessions', ['date']);

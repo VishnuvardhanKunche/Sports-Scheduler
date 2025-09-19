@@ -1,8 +1,4 @@
-// middleware/auth.js
-// Safer auth middleware with defensive checks and clear owner-id comparison.
-
 const safeIsAuthenticated = (req) => {
-  // Passport attaches isAuthenticated; if not present, fall back to checking req.user
   return (typeof req.isAuthenticated === 'function') ? req.isAuthenticated() : !!req.user;
 };
 
@@ -19,8 +15,7 @@ const ensureNotAuthenticated = (req, res, next) => {
     return next();
   }
 
-  // Redirect based on user role (defensive: req.user may be missing)
-  const role = req.user && req.user.role;
+const role = req.user && req.user.role;
   if (role === 'admin') {
     return res.redirect('/admin/dashboard');
   } else {
@@ -44,26 +39,23 @@ const ensurePlayer = (req, res, next) => {
   return res.redirect('/');
 };
 
-const ensureAdminOrOwner = (ownerIdField = 'creatorId') => {
+    const ensureAdminOrOwner = (ownerIdField = 'creatorId') => {
   return (req, res, next) => {
     if (!safeIsAuthenticated(req)) {
       req.flash('error', 'Please log in to access this page');
       return res.redirect('/auth/login');
     }
 
-    // Admin can access everything
     if (req.user && req.user.role === 'admin') {
       return next();
     }
 
-    // Check if user owns the resource (coerce to string to avoid type mismatch)
     const resourceOwnerId = req.resource ? req.resource[ownerIdField] : null;
     if (resourceOwnerId && req.user && String(resourceOwnerId) === String(req.user.id)) {
       return next();
     }
 
     req.flash('error', 'Access denied. You can only modify your own resources.');
-    // 'back' sometimes isn't reliable; fall back to dashboard if referer missing
     return res.redirect(req.get('Referrer') || '/player/dashboard');
   };
 };

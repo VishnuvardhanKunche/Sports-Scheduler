@@ -5,20 +5,16 @@ const { Op } = require('sequelize');
 
 const router = express.Router();
 
-// All player routes require authentication and player role (or admin)
 router.use(ensureAuthenticated, ensurePlayer);
 
-// Player dashboard
 router.get('/dashboard', async (req, res) => {
   try {
     const [createdSessions, joinedSessions, availableSessions] = await Promise.all([
-      // Sessions created by this user
       Session.findAll({
         where: { creatorId: req.user.id },
         include: ['sport', 'players'],
         order: [['date', 'ASC'], ['time', 'ASC']]
       }),
-      // Sessions joined by this user
       Session.findAll({
         include: [
           'sport',
@@ -33,7 +29,6 @@ router.get('/dashboard', async (req, res) => {
         ],
         order: [['date', 'ASC'], ['time', 'ASC']]
       }),
-      // Sessions created by others and active
       Session.findAll({
         where: {
           creatorId: { [Op.ne]: req.user.id },
@@ -44,13 +39,11 @@ router.get('/dashboard', async (req, res) => {
       })
     ]);
 
-    // Filter out sessions already joined
     const joinedSessionIds = joinedSessions.map(session => session.id);
     const filteredAvailableSessions = availableSessions.filter(session =>
       !joinedSessionIds.includes(session.id)
     );
 
-    // Separate upcoming and past sessions
     const today = new Date().toISOString().split('T')[0];
     const upcomingCreated = createdSessions.filter(session => session.date >= today);
     const pastCreated = createdSessions.filter(session => session.date < today);
@@ -63,7 +56,7 @@ router.get('/dashboard', async (req, res) => {
       pastCreated,
       upcomingJoined,
       pastJoined,
-      availableSessions: filteredAvailableSessions.slice(0, 6) // Show first 6
+      availableSessions: filteredAvailableSessions.slice(0, 6)
     });
   } catch (error) {
     console.error('Player dashboard error:', error);
@@ -72,7 +65,6 @@ router.get('/dashboard', async (req, res) => {
   }
 });
 
-// Browse all available sessions
 router.get('/sessions', async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -80,10 +72,8 @@ router.get('/sessions', async (req, res) => {
     const offset = (page - 1) * limit;
     const sportFilter = req.query.sport;
 
-    // Only filter by active status, not date
     const whereClause = { status: 'active' };
 
-    // Add sport filter if provided
     const includeClause = ['creator', 'players'];
     if (sportFilter) {
       includeClause.push({
@@ -103,7 +93,6 @@ router.get('/sessions', async (req, res) => {
       offset
     });
 
-    // Get user's joined sessions to mark them
     const joinedSessions = await Session.findAll({
       include: [{
         model: User,
@@ -116,7 +105,6 @@ router.get('/sessions', async (req, res) => {
     });
     const joinedSessionIds = joinedSessions.map(s => s.id);
 
-    // Get all sports for filter dropdown
     const sports = await Sport.findAll({ order: [['name', 'ASC']] });
 
     const totalPages = Math.ceil(count / limit);
@@ -141,7 +129,6 @@ router.get('/sessions', async (req, res) => {
   }
 });
 
-// Join a session
 router.post('/sessions/:id/join', async (req, res) => {
   try {
     const session = await Session.findByPk(req.params.id, {
@@ -153,37 +140,31 @@ router.post('/sessions/:id/join', async (req, res) => {
       return res.redirect('/player/sessions');
     }
 
-    // Block joining past sessions
     if (session.isPast && session.isPast()) {
       req.flash('error', 'Cannot join past sessions');
       return res.redirect('/player/sessions');
     }
 
-    // Block cancelled sessions
     if (session.status === 'cancelled') {
       req.flash('error', 'Cannot join cancelled sessions');
       return res.redirect('/player/sessions');
     }
 
-    // Prevent joining own session
     if (session.creatorId === req.user.id) {
       req.flash('error', 'You cannot join your own session');
       return res.redirect('/player/sessions');
     }
 
-    // Prevent duplicate join
     if (await session.hasUserJoined(req.user.id)) {
       req.flash('error', 'You have already joined this session');
       return res.redirect('/player/sessions');
     }
 
-    // Prevent joining full sessions
     if (await session.isFull()) {
       req.flash('error', 'This session is full');
       return res.redirect('/player/sessions');
     }
 
-    // Add user to session
     await session.addPlayer(req.user);
 
     req.flash('success', `Successfully joined ${session.sport.name} session!`);
@@ -195,7 +176,6 @@ router.post('/sessions/:id/join', async (req, res) => {
   }
 });
 
-// Leave a session
 router.post('/sessions/:id/leave', async (req, res) => {
   try {
     const session = await Session.findByPk(req.params.id, {
@@ -207,13 +187,11 @@ router.post('/sessions/:id/leave', async (req, res) => {
       return res.redirect('/player/dashboard');
     }
 
-    // Check if user has joined this session
     if (!(await session.hasUserJoined(req.user.id))) {
       req.flash('error', 'You have not joined this session');
       return res.redirect('/player/dashboard');
     }
 
-    // Remove user from session
     await session.removePlayer(req.user);
 
     req.flash('success', `Successfully left ${session.sport.name} session`);

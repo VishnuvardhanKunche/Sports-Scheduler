@@ -3,7 +3,6 @@ const { sequelize } = require('./models');
 
 const PORT = process.env.PORT || 3000;
 
-// Start server
 app.listen(PORT, async () => {
   console.log(`🚀 Sports Scheduler server started on port ${PORT}`);
   

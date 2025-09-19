@@ -6,10 +6,8 @@ const { Op } = require('sequelize');
 
 const router = express.Router();
 
-// All admin routes require authentication and admin role
 router.use(ensureAuthenticated, ensureAdmin);
 
-// Admin dashboard
 router.get('/dashboard', async (req, res) => {
   try {
     const [mySports, upcomingSessions, totalPlayers, totalSessions] = await Promise.all([
@@ -54,7 +52,6 @@ router.get('/dashboard', async (req, res) => {
   }
 });
 
-// Sports management page
 router.get('/sports', async (req, res) => {
   try {
     const sports = await Sport.findAll({
@@ -79,14 +76,12 @@ router.get('/sports', async (req, res) => {
   }
 });
 
-// Create sport form
 router.get('/sports/new', (req, res) => {
   res.render('admin/create-sport', {
     title: 'Create New Sport'
   });
 });
 
-// Create sport POST
 router.post('/sports',
   [
     body('name')
@@ -128,7 +123,6 @@ router.post('/sports',
   }
 );
 
-// Edit sport form
 router.get('/sports/:id/edit', async (req, res) => {
   try {
     const sport = await Sport.findOne({
@@ -154,7 +148,6 @@ router.get('/sports/:id/edit', async (req, res) => {
   }
 });
 
-// Update sport
 router.put('/sports/:id',
   [
     body('name')
@@ -196,7 +189,6 @@ router.put('/sports/:id',
   }
 );
 
-// ✅ Admin - View ALL sessions (not just upcoming)
 router.get('/sessions', async (req, res) => {
   try {
     const sessions = await Session.findAll({
@@ -215,16 +207,13 @@ router.get('/sessions', async (req, res) => {
   }
 });
 
-// Reports page
 router.get('/reports', async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
     
-    // Default to last 30 days if no dates provided
     const end = endDate ? new Date(endDate) : new Date();
     const start = startDate ? new Date(startDate) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     
-    // Get sessions in date range
     const sessions = await Session.findAll({
       where: {
         date: {
@@ -235,7 +224,6 @@ router.get('/reports', async (req, res) => {
       order: [['date', 'DESC']]
     });
 
-    // Calculate sport popularity
     const sportStats = {};
     sessions.forEach(session => {
       const sportName = session.sport.name;

@@ -5,19 +5,16 @@ const bcrypt = require('bcrypt');
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
-      // User can create many sports (as admin)
       User.hasMany(models.Sport, {
         foreignKey: 'adminId',
         as: 'createdSports'
       });
       
-      // User can create many sessions
       User.hasMany(models.Session, {
         foreignKey: 'creatorId',
         as: 'createdSessions'
       });
       
-      // User can join many sessions (many-to-many)
       User.belongsToMany(models.Session, {
         through: 'UserSessions',
         foreignKey: 'userId',
@@ -25,12 +22,10 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
 
-    // Instance method to check password
     async checkPassword(password) {
       return await bcrypt.compare(password, this.password);
     }
 
-    // Static method to create user with hashed password
     static async createUser({ name, email, password, role = 'player' }) {
       const saltRounds = 10;
       const hashedPassword = await bcrypt.hash(password, saltRounds);
@@ -43,12 +38,10 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
 
-    // Check if user is admin
     isAdmin() {
       return this.role === 'admin';
     }
 
-    // Check if user is player
     isPlayer() {
       return this.role === 'player';
     }

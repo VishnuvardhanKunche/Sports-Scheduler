@@ -4,10 +4,8 @@ const { ensureAuthenticated } = require('../middleware/auth');
 
 const router = express.Router();
 
-// All sports routes require authentication
 router.use(ensureAuthenticated);
 
-// List all sports (for creating sessions)
 router.get('/', async (req, res) => {
   try {
     const sports = await Sport.findAll({
@@ -34,7 +32,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// View sport details with its sessions
 router.get('/:id', async (req, res) => {
   try {
     const sport = await Sport.findByPk(req.params.id, {
@@ -57,7 +54,6 @@ router.get('/:id', async (req, res) => {
       return res.redirect('/sports');
     }
 
-    // Separate upcoming and past sessions
     const today = new Date().toISOString().split('T')[0];
     const upcomingSessions = sport.sessions.filter(session => 
       session.date >= today && session.status === 'active'
@@ -66,7 +62,6 @@ router.get('/:id', async (req, res) => {
       session.date < today || session.status !== 'active'
     );
 
-    // Check if user has joined any upcoming sessions
     const joinedSessionIds = [];
     if (req.user) {
       const userJoinedSessions = await Session.findAll({

@@ -2,10 +2,8 @@ const express = require('express');
 const router = express.Router();
 const { Session, Sport, User } = require('../models');
 
-// Home page
 router.get('/', async (req, res) => {
   try {
-    // Get some stats for the homepage
     const upcomingSessions = await Session.getUpcomingSessions(6);
     const totalSports = await Sport.count();
     const totalUsers = await User.count({ where: { role: 'player' } });
@@ -29,7 +27,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// About page
 router.get('/about', (req, res) => {
   res.render('about', {
     title: 'About Sports Scheduler'

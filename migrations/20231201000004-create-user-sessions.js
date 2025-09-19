@@ -39,14 +39,12 @@ module.exports = {
       }
     });
 
-    // Add composite unique constraint to prevent duplicate joins
     await queryInterface.addConstraint('UserSessions', {
       fields: ['userId', 'sessionId'],
       type: 'unique',
       name: 'unique_user_session'
     });
 
-    // Add indexes
     await queryInterface.addIndex('UserSessions', ['userId']);
     await queryInterface.addIndex('UserSessions', ['sessionId']);
   },

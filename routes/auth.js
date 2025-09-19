@@ -6,14 +6,12 @@ const { ensureNotAuthenticated } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Login page
 router.get('/login', ensureNotAuthenticated, (req, res) => {
   res.render('auth/login', {
     title: 'Login - Sports Scheduler'
   });
 });
 
-// Login POST
 router.post('/login', 
   ensureNotAuthenticated,
   [
@@ -48,7 +46,6 @@ router.post('/login',
         
         req.flash('success', `Welcome back, ${user.name}!`);
         
-        // Redirect based on user role
         if (user.role === 'admin') {
           return res.redirect('/admin/dashboard');
         } else {
@@ -59,14 +56,12 @@ router.post('/login',
   }
 );
 
-// Signup page
 router.get('/signup', ensureNotAuthenticated, (req, res) => {
   res.render('auth/signup', {
     title: 'Sign Up - Sports Scheduler'
   });
 });
 
-// Signup POST
 router.post('/signup',
   ensureNotAuthenticated,
   [
@@ -108,7 +103,6 @@ router.post('/signup',
       
       const { name, email, password, role } = req.body;
       
-      // Create new user
       const user = await User.createUser({
         name: name.trim(),
         email: email.toLowerCase(),
@@ -116,7 +110,6 @@ router.post('/signup',
         role
       });
       
-      // Auto-login after signup
       req.logIn(user, (err) => {
         if (err) {
           console.error('Auto-login error:', err);
@@ -126,7 +119,6 @@ router.post('/signup',
         
         req.flash('success', `Welcome to Sports Scheduler, ${user.name}!`);
         
-        // Redirect based on user role
         if (user.role === 'admin') {
           return res.redirect('/admin/dashboard');
         } else {
@@ -148,7 +140,6 @@ router.post('/signup',
   }
 );
 
-// Logout
 router.post('/logout', (req, res) => {
   req.logout((err) => {
     if (err) {

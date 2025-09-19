@@ -4,20 +4,17 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Sport extends Model {
     static associate(models) {
-      // Sport belongs to an admin user
       Sport.belongsTo(models.User, {
         foreignKey: 'adminId',
         as: 'admin'
       });
       
-      // Sport can have many sessions
       Sport.hasMany(models.Session, {
         foreignKey: 'sportId',
         as: 'sessions'
       });
     }
 
-    // Get all sessions for this sport
     async getSessions() {
       const { Session } = require('./index');
       return await Session.findAll({
@@ -27,7 +24,6 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
 
-    // Get upcoming sessions for this sport
     async getUpcomingSessions() {
       const { Session } = require('./index');
       const now = new Date();
@@ -45,7 +41,6 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
 
-    // Get session count for reporting
     async getSessionCount(startDate = null, endDate = null) {
       const { Session } = require('./index');
       const whereClause = { sportId: this.id };

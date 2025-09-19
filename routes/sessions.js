@@ -5,10 +5,8 @@ const { ensureAuthenticated, ensurePlayer } = require('../middleware/auth');
 
 const router = express.Router();
 
-// All session routes require authentication and player role (or admin)
 router.use(ensureAuthenticated, ensurePlayer);
 
-// Create session form
 router.get('/new', async (req, res) => {
   try {
     const sports = await Sport.findAll({
@@ -26,7 +24,6 @@ router.get('/new', async (req, res) => {
   }
 });
 
-// Create session POST
 router.post('/',
   [
     body('sportId')
@@ -66,14 +63,12 @@ router.post('/',
 
       const { sportId, date, time, venue, playersNeeded } = req.body;
 
-      // Verify sport exists
       const sport = await Sport.findByPk(sportId);
       if (!sport) {
         req.flash('error', 'Selected sport not found');
         return res.redirect('/sessions/new');
       }
 
-      // Create session
       const session = await Session.create({
         sportId: parseInt(sportId),
         creatorId: req.user.id,
@@ -93,7 +88,6 @@ router.post('/',
   }
 );
 
-// View session details
 router.get('/:id', async (req, res) => {
   try {
     const session = await Session.findByPk(req.params.id, {
@@ -105,7 +99,6 @@ router.get('/:id', async (req, res) => {
       return res.redirect('/player/dashboard');
     }
 
-    // Check if current user has joined
     const hasJoined = await session.hasUserJoined(req.user.id);
     const availableSlots = await session.getAvailableSlots();
     const isOwner = session.creatorId === req.user.id;
@@ -127,7 +120,6 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Edit session form (only for creators)
 router.get('/:id/edit', async (req, res) => {
   try {
     const session = await Session.findByPk(req.params.id, {
@@ -139,13 +131,11 @@ router.get('/:id/edit', async (req, res) => {
       return res.redirect('/player/dashboard');
     }
 
-    // Check if user is the creator or admin
     if (session.creatorId !== req.user.id && req.user.role !== 'admin') {
       req.flash('error', 'You can only edit your own sessions');
       return res.redirect('/player/dashboard');
     }
 
-    // Can't edit past sessions
     if (session.isPast()) {
       req.flash('error', 'Cannot edit past sessions');
       return res.redirect('/player/dashboard');
@@ -167,7 +157,6 @@ router.get('/:id/edit', async (req, res) => {
   }
 });
 
-// Update session
 router.put('/:id',
   [
     body('sportId')
@@ -208,13 +197,11 @@ router.put('/:id',
         return res.redirect('/player/dashboard');
       }
 
-      // Check if user is the creator or admin
       if (session.creatorId !== req.user.id && req.user.role !== 'admin') {
         req.flash('error', 'You can only edit your own sessions');
         return res.redirect('/player/dashboard');
       }
 
-      // Can't edit past sessions
       if (session.isPast()) {
         req.flash('error', 'Cannot edit past sessions');
         return res.redirect('/player/dashboard');
@@ -228,14 +215,12 @@ router.put('/:id',
 
       const { sportId, date, time, venue, playersNeeded } = req.body;
 
-      // Check if reducing players needed below current joined count
       const currentPlayerCount = session.players.length;
       if (parseInt(playersNeeded) < currentPlayerCount) {
         req.flash('error', `Cannot reduce players needed below current joined count (${currentPlayerCount})`);
         return res.redirect(`/sessions/${req.params.id}/edit`);
       }
 
-      // Update session
       await session.update({
         sportId: parseInt(sportId),
         date,
@@ -254,7 +239,6 @@ router.put('/:id',
   }
 );
 
-// Cancel session form
 router.get('/:id/cancel', async (req, res) => {
   try {
     const session = await Session.findByPk(req.params.id, {
@@ -266,19 +250,16 @@ router.get('/:id/cancel', async (req, res) => {
       return res.redirect('/player/dashboard');
     }
 
-    // Check if user is the creator or admin
     if (session.creatorId !== req.user.id && req.user.role !== 'admin') {
       req.flash('error', 'You can only cancel your own sessions');
       return res.redirect('/player/dashboard');
     }
 
-    // Can't cancel past sessions
     if (session.isPast()) {
       req.flash('error', 'Cannot cancel past sessions');
       return res.redirect('/player/dashboard');
     }
 
-    // Already cancelled
     if (session.status === 'cancelled') {
       req.flash('error', 'Session is already cancelled');
       return res.redirect('/player/dashboard');
@@ -295,7 +276,6 @@ router.get('/:id/cancel', async (req, res) => {
   }
 });
 
-// Cancel session POST
 router.post('/:id/cancel',
   [
     body('reason')
@@ -314,7 +294,6 @@ router.post('/:id/cancel',
         return res.redirect('/player/dashboard');
       }
 
-      // Check if user is the creator or admin
       if (session.creatorId !== req.user.id && req.user.role !== 'admin') {
         req.flash('error', 'You can only cancel your own sessions');
         return res.redirect('/player/dashboard');
@@ -326,7 +305,6 @@ router.post('/:id/cancel',
         return res.redirect(`/sessions/${req.params.id}/cancel`);
       }
 
-      // Cancel the session
       await session.cancelSession(req.body.reason.trim());
 
       req.flash('success', `${session.sport.name} session cancelled successfully`);
@@ -339,7 +317,6 @@ router.post('/:id/cancel',
   }
 );
 
-// Add this temporary route to your sessions.js
 router.post('/:id/update', async (req, res) => {
   console.log('🚀 FALLBACK POST ROUTE HIT');
   try {
@@ -352,13 +329,11 @@ router.post('/:id/update', async (req, res) => {
         return res.redirect('/player/dashboard');
       }
 
-      // Check if user is the creator or admin
       if (session.creatorId !== req.user.id && req.user.role !== 'admin') {
         req.flash('error', 'You can only edit your own sessions');
         return res.redirect('/player/dashboard');
       }
 
-      // Can't edit past sessions
       if (session.isPast()) {
         req.flash('error', 'Cannot edit past sessions');
         return res.redirect('/player/dashboard');
@@ -372,14 +347,12 @@ router.post('/:id/update', async (req, res) => {
 
       const { sportId, date, time, venue, playersNeeded } = req.body;
 
-      // Check if reducing players needed below current joined count
       const currentPlayerCount = session.players.length;
       if (parseInt(playersNeeded) < currentPlayerCount) {
         req.flash('error', `Cannot reduce players needed below current joined count (${currentPlayerCount})`);
         return res.redirect(`/sessions/${req.params.id}/edit`);
       }
 
-      // Update session
       await session.update({
         sportId: parseInt(sportId),
         date,
@@ -398,7 +371,6 @@ router.post('/:id/update', async (req, res) => {
   }
 );
 
-// Cancel session form
 router.get('/:id/cancel', async (req, res) => {
   try {
     const session = await Session.findByPk(req.params.id, {
@@ -410,19 +382,16 @@ router.get('/:id/cancel', async (req, res) => {
       return res.redirect('/player/dashboard');
     }
 
-    // Check if user is the creator or admin
     if (session.creatorId !== req.user.id && req.user.role !== 'admin') {
       req.flash('error', 'You can only cancel your own sessions');
       return res.redirect('/player/dashboard');
     }
 
-    // Can't cancel past sessions
     if (session.isPast()) {
       req.flash('error', 'Cannot cancel past sessions');
       return res.redirect('/player/dashboard');
     }
 
-    // Already cancelled
     if (session.status === 'cancelled') {
       req.flash('error', 'Session is already cancelled');
       return res.redirect('/player/dashboard');

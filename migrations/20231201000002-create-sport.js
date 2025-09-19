@@ -33,7 +33,6 @@ module.exports = {
       }
     });
 
-    // Add indexes
     await queryInterface.addIndex('Sports', ['adminId']);
     await queryInterface.addIndex('Sports', ['name']);
   },

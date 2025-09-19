@@ -1,6 +1,3 @@
-// Additional role checking utilities
-// This file provides extra middleware functions for specific role-based access
-
 const requireRole = (requiredRole) => {
   return (req, res, next) => {
     if (!req.isAuthenticated()) {
@@ -40,12 +37,11 @@ const checkResourceOwnership = (resourceField = 'creatorId') => {
       return res.redirect('/auth/login');
     }
 
-    // Admin can access everything
+
     if (req.user.role === 'admin') {
       return next();
     }
 
-    // Check if user owns the resource (will be set by previous middleware)
     if (req.resource && req.resource[resourceField] === req.user.id) {
       return next();
     }

@@ -4,19 +4,16 @@ const { Model, Op } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Session extends Model {
     static associate(models) {
-      // Session belongs to a sport
       Session.belongsTo(models.Sport, {
         foreignKey: 'sportId',
         as: 'sport'
       });
 
-      // Session belongs to a creator (user)
       Session.belongsTo(models.User, {
         foreignKey: 'creatorId',
         as: 'creator'
       });
 
-      // Session can have many players (many-to-many)
       Session.belongsToMany(models.User, {
         through: 'UserSessions',
         foreignKey: 'sessionId',
@@ -24,32 +21,27 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
 
-    // Check if session is in the past
     isPast() {
       const now = new Date();
       const sessionDateTime = new Date(`${this.date}T${this.time}`);
       return sessionDateTime < now;
     }
 
-    // Check if session is full
     async isFull() {
       const playerCount = await this.countPlayers();
       return playerCount >= this.playersNeeded;
     }
 
-    // Get available slots
     async getAvailableSlots() {
       const playerCount = await this.countPlayers();
       return Math.max(0, this.playersNeeded - playerCount);
     }
 
-    // Check if user has joined this session
     async hasUserJoined(userId) {
       const players = await this.getPlayers();
       return players.some(player => player.id === userId);
     }
 
-    // Add a player to the session
     async addPlayerToSession(userId) {
       const user = await sequelize.models.User.findByPk(userId);
 
@@ -62,14 +54,12 @@ module.exports = (sequelize, DataTypes) => {
       return true;
     }
 
-    // Cancel the session
     async cancelSession(reason) {
       this.status = 'cancelled';
       this.cancellationReason = reason;
       await this.save();
     }
 
-    // Get formatted date and time
     getFormattedDateTime() {
       const date = new Date(`${this.date}T${this.time}`);
       return {
@@ -82,7 +72,6 @@ module.exports = (sequelize, DataTypes) => {
       };
     }
 
-    // Static method to get upcoming sessions
     static async getUpcomingSessions(limit = null) {
       const now = new Date();
       const options = {
@@ -115,7 +104,6 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         validate: {
           isDate: { msg: "Please enter a valid date" }
-          // ❌ removed isAfter validator (was static, not dynamic)
         }
       },
       time: {
