@@ -37,8 +37,8 @@ Sports Scheduler is a web application that helps players and administrators mana
 ## Installation and Setup
 
 1. Clone the repository:
-   git clone https://github.com/your-username/sports-scheduler.git
-   cd sports-scheduler
+[   git clone https://github.com/your-username/sports-scheduler.git
+](https://github.com/VishnuvardhanKunche/Sports-Scheduler.git)   cd sports-scheduler
 
 2. Install dependencies:
     npm install
